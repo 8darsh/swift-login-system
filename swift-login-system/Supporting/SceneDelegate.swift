@@ -23,6 +23,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.rootViewController = nav
         self.window = window
         self.window?.makeKeyAndVisible()
+        
+        
+        let userRequest = RegisterUserRequest(username: "adarsh75", email: "adarsingh2002@gmail.com", password: "password123")
+        AuthService.shared.registerUser(with: userRequest) { wasRegistered, error in
+            if let error = error{
+                print(error.localizedDescription)
+                return
+            }
+            
+            print("was registerd",wasRegistered)
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
