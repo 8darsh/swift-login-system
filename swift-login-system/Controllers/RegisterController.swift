@@ -74,9 +74,50 @@ class RegisterController: UIViewController {
 extension RegisterController{
     
     @objc private func didTapSignUp(){
+        let registerUserRequest = RegisterUserRequest(
+            username: self.userNameField.text ?? "",
+            email: self.emailField.text ?? "",
+            password: self.passwordField.text ?? "")
         
-        print("signin")
+        
+        // username check
+        if !Validator.isValidUsername(for: registerUserRequest.username){
+            AlertManager.showInvalidUsernameAlert(on: self)
+            return
+        }
+        // email check
+        if !Validator.isValidEmail(for: registerUserRequest.email){
+            AlertManager.showInvalidEmailAlert(on: self)
+            return
+        }
+        // password check
+//        if !Validator.isPasswordValid(for: registerUserRequest.password){
+//            AlertManager.showInvalidPasswordAlert(on: self)
+//            return
+//        }
+        
+//        print(registerUserRequest)
+        
+        AuthService.shared.registerUser(with: registerUserRequest) { [weak self] wasRegisterd, error in
+            
+            guard let self else {return}
+            
+            if let error {
+                AlertManager.showRegistrationErrorAlert(on: self, with: error)
+                return
+            }
+            
+            if wasRegisterd{
+                if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate{
+                    sceneDelegate.checkAuthentication()
+                }else{
+                    AlertManager.showRegistrationErrorAlert(on: self)
+                }
+            }
+        }
     }
+    
+    
     
     @objc private func didTapSignIn(){
         self.navigationController?.popToRootViewController(animated: true)

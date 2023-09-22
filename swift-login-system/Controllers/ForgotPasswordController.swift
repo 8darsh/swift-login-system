@@ -71,9 +71,27 @@ extension ForgotController{
 extension ForgotController{
     
     @objc private func didTapForgotPassword(){
-        guard let email = self.emailField.text, !email.isEmpty else {return}
+        let email = self.emailField.text ?? ""
+        
+        if !Validator.isValidEmail(for: email){
+            AlertManager.showInvalidEmailAlert(on: self)
+            return
+        }
+        
+        AuthService.shared.forgotPassword(with: email) { [weak self] error in
+            guard let self else {return}
+            
+            if let error = error{
+                AlertManager.showErrorSendingPasswordReset(on: self, with: error)
+                return
+            }
+            
+            AlertManager.showPasswordResetSent(on: self)
+        }
         
         
-        //email validation
+        
+        
+        
     }
 }

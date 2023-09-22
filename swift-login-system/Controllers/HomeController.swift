@@ -23,7 +23,19 @@ class HomeController: UIViewController {
         super.viewDidLoad()
         self.setupUI()
         
-        self.Label.text = "Adarsh\nadarsingh2002@gmail.com"
+        AuthService.shared.fetchUser { [weak self] user, error in
+            guard let self else {return}
+            
+            if let error = error{
+                AlertManager.showFetchingUserError(on: self, with: error)
+                return
+            }
+            
+            if let user = user{
+                self.Label.text = "\(user.username)\n\(user.email)"
+            }
+        }
+        
     }
 
 
@@ -48,6 +60,17 @@ extension HomeController{
 extension HomeController{
     
     @objc func didTapLogout(){
-        
+        AuthService.shared.SignOut { [weak self] error in
+            guard let self else {return}
+            
+            if let error {
+                AlertManager.showLogoutErrorAlert(on: self, with: error)
+                return
+            }
+            
+            if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate{
+                sceneDelegate.checkAuthentication()
+            }
+        }
     }
 }
